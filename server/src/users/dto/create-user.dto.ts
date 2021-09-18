@@ -1,11 +1,12 @@
-import { IsString } from 'class-validator';
+import { IsArray, IsString } from 'class-validator';
+import { NotificationDto } from 'src/notifications/dto/notification.dto';
 
 export class CreateUserDto {
   readonly _id: string;
 
   @IsString()
-  ws_id: string;
+  readonly ws_id: string;
 
-  @IsString({ each: true })
-  blocklist: string[];
+  @IsArray()
+  readonly blocklist: NotificationDto[];
 }
