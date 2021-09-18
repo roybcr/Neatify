@@ -24,7 +24,7 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
-    // {new: true} is being used in order for mongoose to return back the updated user object.
+    // {new: true} is being used in order for mongoose to return the updated user object instead of the current one.
     const existingUser = await this.userModel
       .findOneAndUpdate({ _id: id }, { $set: updateUserDto }, { new: true })
       .exec();
