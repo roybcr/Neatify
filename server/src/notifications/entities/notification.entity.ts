@@ -7,7 +7,7 @@ export class Notification extends Document {
   type: string;
 
   @Prop()
-  text: string;
+  message: string;
 }
 
 export const NotificationSchema = SchemaFactory.createForClass(Notification);
