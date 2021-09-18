@@ -23,13 +23,13 @@ export class UsersService {
     return user;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(ws_id: string, updateUserDto: UpdateUserDto): Promise<User> {
     // {new: true} is being used in order for mongoose to return the updated user object instead of the current one.
     const existingUser = await this.userModel
-      .findOneAndUpdate({ _id: id }, { $set: updateUserDto }, { new: true })
+      .findOneAndUpdate({ ws_id }, { $set: updateUserDto }, { new: true })
       .exec();
     if (!existingUser)
-      throw new NotFoundException(`User with id #${id} not found!`);
+      throw new NotFoundException(`User with socket id #${ws_id} not found!`);
 
     return existingUser;
   }

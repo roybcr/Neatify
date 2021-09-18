@@ -1,5 +1,5 @@
 import { IsArray, IsString } from 'class-validator';
-import { NotificationDto } from 'src/notifications/dto/notification.dto';
+import { NotificationDto } from '../../notifications/dto/notification.dto';
 
 export class CreateUserDto {
   readonly _id: string;
