@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
 import {
+  ConnectedSocket,
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -9,11 +10,11 @@ import {
   WsResponse,
 } from '@nestjs/websockets';
 import {
-  delay,
+  distinctUntilChanged,
   mapTo,
+  Observable,
   of,
   repeat,
-  skip,
   Subscription,
   switchMap,
   tap,
@@ -23,7 +24,7 @@ import { Server, Socket } from 'socket.io';
 import { EVENTS } from './events.enum';
 import { NotificationDto } from './notifications/dto/notification.dto';
 
-@WebSocketGateway(8080, { transports: ['websocket'], cors: true })
+@WebSocketGateway(8080, { cors: true })
 export class AppGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
@@ -75,15 +76,15 @@ export class AppGateway
       ),
 
       repeat(),
+      distinctUntilChanged(),
     );
   }
 
   afterInit(server: Server) {
-    this.sub = this.timeManager$().subscribe(console.log);
-    this.logger.log(server, 'Initialized!');
+    this.logger.debug(server, 'Initialized!');
   }
 
-  handleConnection(client: Socket): void {
+  handleConnection(@ConnectedSocket() client: Socket): void {
     client.emit(EVENTS.connection, client.id);
   }
 
@@ -92,9 +93,37 @@ export class AppGateway
     this.sub.unsubscribe();
   }
 
-  @SubscribeMessage('message')
-  handleMessage(@MessageBody() message: string): WsResponse<string> {
-    this.logger.log('Message received', message);
-    return { event: 'message', data: message };
+  @SubscribeMessage('identity')
+  handleMessage(
+    @MessageBody('message') message: string,
+    @ConnectedSocket() client: Socket,
+  ): Observable<WsResponse<NotificationDto>> {
+    this.logger.log('Recieved message!', message);
+    const ov$ = of('').pipe(
+      switchMap(() =>
+        timer(this.generateRandomDuration(2, 8))
+          .pipe(tap(() => this.logger.log('Displaying Nothing...')))
+          .pipe(
+            tap(() => this.logger.log('Waiting for incoming notification...')),
+          ),
+      ),
+
+      switchMap(() =>
+        timer(this.generateRandomDuration(5, 10)).pipe(
+          mapTo({
+            event: 'identity',
+            data: this.notes[this.generateRandomNumber()],
+          }),
+          tap((payload) =>
+            this.logger.log(`Displaying Notification: ${payload.data.message}`),
+          ),
+        ),
+      ),
+
+      repeat(),
+      distinctUntilChanged(),
+    );
+
+    return ov$;
   }
 }
