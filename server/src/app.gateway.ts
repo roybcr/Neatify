@@ -9,11 +9,7 @@ import {
   WebSocketGateway,
   WsResponse,
 } from '@nestjs/websockets';
-import {
-  distinctUntilChanged,
-  Observable,
-  Subscription,
-} from 'rxjs';
+import { distinctUntilChanged, Observable, Subscription } from 'rxjs';
 import { mergeWith } from 'rxjs/operators';
 import { Server, Socket } from 'socket.io';
 import { APPGATEWAY, EVENTS } from './constants';
@@ -51,6 +47,7 @@ export class AppGateway
   @SubscribeMessage(EVENTS.block)
   handleBlock(@MessageBody('data') data: string) {
     this.logger.log('Client Blocked Resource', data);
+    this.schedulerService.handleBlockEvent();
   }
 
   handleDisconnect() {
