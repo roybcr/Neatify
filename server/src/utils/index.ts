@@ -13,25 +13,19 @@ export function generateRandomDuration(min: number, max: number): number {
 
 const saleRegex = /(?:^|\W)sale(?:$|\W)/i;
 const newRegex = /(?:^|\W)new(?:$|\W)/i;
-const limitedRegex = /(?:^|\W)limited(?:$|\W)/i;
-const editionRegex = /(?:^|\W)edition(?:$|\W)/i;
+const limitedEditionRegex = /(?:^|\W)(limited)\s(edition)(?:$|\W)/i;
 
-export const processNotificationText = (message: string) => {
-  const words$ = from([message]).pipe(
-    map((x) => (saleRegex.test(x) ? x + '!' : x)),
-    map((x) => (newRegex.test(x) ? '~~' + x : x)),
-    scan((a, b) =>
-      limitedRegex.test(a) && editionRegex.test(b)
-        ? message.replace(a + ' ' + b, a.toUpperCase() + ' ' + b.toUpperCase())
-        : a + ' ' + b
-    )
-  );
-
-  return words$;
+const processNotificationText = (message: string) => {
+  const s = saleRegex.test(message) ? message + ' ' + '!' : message;
+  const n = newRegex.test(s) ? '~~' + ' ' + s : s;
+  const le = limitedEditionRegex.test(n)
+    ? n.replace(n.match(limitedEditionRegex)[0], ' LIMITED EDITION ')
+    : n;
+  return le;
 };
 
 export const mapWsResponse = (event: string, data: NotificationDto) => {
-  processNotificationText(data.message).subscribe(console.log);
+  Object.assign(data, { ...data, message: processNotificationText(data.message) });
 
   return {
     event,
