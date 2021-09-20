@@ -5,25 +5,25 @@ import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+   constructor(private readonly usersService: UsersService) {}
 
-  @Get()
-  getAll() {
-    return this.usersService.findAll();
-  }
+   @Get()
+   getAll() {
+      return this.usersService.findAll();
+   }
 
-  @Get(':ws_id')
-  getOne(@Param('ws_id') ws_id: string) {
-    return this.usersService.findOne(ws_id);
-  }
+   @Get(':ws_id')
+   getOne(@Param('ws_id') ws_id: string) {
+      return this.usersService.findOne(ws_id);
+   }
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
-  }
+   @Post()
+   create(@Body() createUserDto: CreateUserDto) {
+      return this.usersService.create(createUserDto);
+   }
 
-  @Patch(':ws_id')
-  update(@Param('ws_id') ws_id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(ws_id, updateUserDto);
-  }
+   @Patch(':ws_id')
+   update(@Param('ws_id') ws_id: string, @Body() updateUserDto: UpdateUserDto) {
+      return this.usersService.update(ws_id, updateUserDto);
+   }
 }
