@@ -2,13 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { WsResponse } from '@nestjs/websockets';
 import {
   BehaviorSubject,
-  iif,
   mapTo,
-  mergeMap,
   Observable,
   of,
   repeat,
-  skipWhile,
   switchMap,
   tap,
   timer,
@@ -19,7 +16,6 @@ import {
   displayIntervalRange,
   dummyNotification,
   EVENTS,
-  notes,
 } from '../constants';
 import { NotificationDto } from '../notifications/dto/notification.dto';
 
@@ -39,9 +35,7 @@ export class SchedulerService {
     this.streamSource$ = this.streamSubject.asObservable();
   }
 
-  private init() {}
-
-  runScheduleAsUsusal$() {
+  runScheduleAsUsusal$(notifications: NotificationDto[]) {
     return of('').pipe(
       switchMap(() =>
         timer(generateRandomDuration(displayIntervalRange.min, displayIntervalRange.max))
@@ -61,7 +55,7 @@ export class SchedulerService {
                 mapTo(
                   mapWsResponse(
                     EVENTS.notification as string,
-                    notes[generateRandomNumber(notes.length)]
+                    notifications[generateRandomNumber(notifications.length)]
                   )
                 ),
                 tap((x) => this.streamSubject.next(x))
